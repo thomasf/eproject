@@ -353,7 +353,7 @@ what to look for.  Some examples:
 
 (defun eproject--buffer-file-name ()
   (cond ((buffer-file-name))
-        ((eq major-mode 'dired-mode)
+        ((derived-mode-p 'dired-mode)
          (expand-file-name (if (consp dired-directory)
                                (car dired-directory)
                              dired-directory)))
