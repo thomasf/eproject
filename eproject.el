@@ -352,10 +352,13 @@ what to look for.  Some examples:
     (otherwise (error "Don't know how to handle %s in LOOK-FOR!" type))))
 
 (defun eproject--buffer-file-name ()
-  (or (buffer-file-name) (and (eq major-mode 'dired-mode)
-                              (expand-file-name (if (consp dired-directory)
-                                                    (car dired-directory)
-                                                  dired-directory)))))
+  (cond ((buffer-file-name))
+        ((eq major-mode 'dired-mode)
+         (expand-file-name (if (consp dired-directory)
+                               (car dired-directory)
+                             dired-directory)))
+        ((and (derived-mode-p 'magit-status-mode)
+              default-directory))))
 
 (defun* eproject--run-project-selector (type &optional (file (eproject--buffer-file-name)))
   "Run the selector associated with project type TYPE."
@@ -690,6 +693,12 @@ that FILE is an absolute path."
 
 (add-hook 'find-file-hook #'eproject-maybe-turn-on)
 (add-hook 'dired-mode-hook #'eproject-maybe-turn-on)
+
+(defun eproject-magit-mode-hook ()
+  (when (derived-mode-p 'magit-status-mode)
+    (eproject-maybe-turn-on)))
+(add-hook 'magit-mode-hook #'eproject-magit-mode-hook)
+
 (add-hook 'after-change-major-mode-hook #'eproject--after-change-major-mode-hook)
 (add-hook 'after-save-hook #'eproject--after-save-hook)
 
